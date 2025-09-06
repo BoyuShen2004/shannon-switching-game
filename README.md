@@ -28,11 +28,11 @@ A web-based Shannon switching game where two players compete on a graph - one tr
 
 ## Play Online
 
-[Play the game here](https://yourusername.github.io/shannon-switching-game/)
+[Play the game here](https://BoyuShen2004.github.io/shannon-switching-game/shannon_switching_game.html)
 
 ## Local Setup
 
-Simply download `index.html` and open it in any modern web browser.
+Simply download `shannon_switching_game.html` and open it in any modern web browser.
 
 ## Technologies Used
 
