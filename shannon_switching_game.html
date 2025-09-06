@@ -41,7 +41,10 @@
         .game-board{display:flex;justify-content:center;margin:14px 0}
         svg{border:3px solid #ddd;border-radius:15px;background:#fff;box-shadow:0 10px 30px rgba(0,0,0,.1)}
         .node{cursor:pointer;transition:all .2s ease}
-        .node:hover{transform:scale(1.1)}
+        .node:hover{
+            transform: none;
+            filter: drop-shadow(0 0 6px rgba(0,0,0,0.3));
+        }
         .terminal{fill:#ff6b6b;stroke:#ff5252;stroke-width:3}
         .regular-node{fill:#4ecdc4;stroke:#26a69a;stroke-width:2}
         .ghost-node{fill:#9ad8d4;stroke:#26a69a;stroke-dasharray:3 3}
