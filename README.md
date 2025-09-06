@@ -32,7 +32,7 @@ A web-based Shannon switching game where two players compete on a graph - one tr
 
 ## Local Setup
 
-Simply download `shannon_switching_game.html` and open it in any modern web browser.
+Simply download `shannon_switching_game.html` and right-click on the file. Select "Open with" and choose your web browser (Chrome, Firefox, Safari, etc.) to run the game locally.
 
 ## Technologies Used
 
