@@ -230,12 +230,15 @@ class ShannonSwitchingGame {
             circle.setAttribute('cy', node.y);
             circle.setAttribute('r', 15);
             circle.setAttribute('class', node.terminal ? 'node terminal' : 'node regular-node');
-
+            
+            // Make sure the entire circle (including transparent area) is clickable
+            circle.setAttribute('pointer-events', 'all');
+            
             // Node interactions by mode
             circle.addEventListener('click', (e) => {
                 e.stopPropagation();
                 if (this.mode === 'addEdge') {
-                    this.addEdgeStep(index);
+                    this.addEdgeStep(index);  // always trigger edge creation
                 } else if (this.mode === 'toggleTerminal') {
                     this.toggleTerminal(index);
                 } else if (this.mode === 'delete') {
@@ -243,26 +246,26 @@ class ShannonSwitchingGame {
                 }
             });
 
-            // Move (drag) support
-            if (this.mode === 'move') {
-                circle.style.cursor = 'grab';
-                circle.addEventListener('mousedown', (e) => this.startDrag(e, index));
-            }
+    // Move (drag) support
+    if (this.mode === 'move') {
+        circle.style.cursor = 'grab';
+        circle.addEventListener('mousedown', (e) => this.startDrag(e, index));
+    }
 
-            svg.appendChild(circle);
+    svg.appendChild(circle);
 
-            // Labels
-            const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            text.setAttribute('x', node.x);
-            text.setAttribute('y', node.y + 5);
-            text.setAttribute('text-anchor', 'middle');
-            text.setAttribute('font-family', 'Arial');
-            text.setAttribute('font-size', '12');
-            text.setAttribute('font-weight', 'bold');
-            text.setAttribute('fill', 'white');
-            text.textContent = node.terminal ? 'T' : index;
-            svg.appendChild(text);
-        });
+    // Labels
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', node.x);
+    text.setAttribute('y', node.y + 5);
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('font-family', 'Arial');
+    text.setAttribute('font-size', '12');
+    text.setAttribute('font-weight', 'bold');
+    text.setAttribute('fill', 'white');
+    text.textContent = node.terminal ? 'T' : index;
+    svg.appendChild(text);
+});
     }
 
     // ---------- PLAY LOGIC ----------
