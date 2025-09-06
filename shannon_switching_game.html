@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shannon Switching Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 15px;
+            color: white;
+        }
+
+        .current-player {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .game-status {
+            font-size: 1.1rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .reset-btn {
+            background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .reset-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .rules-btn {
+            background: linear-gradient(45deg, #a8edea 0%, #fed6e3 100%);
+            color: #333;
+        }
+
+        .rules-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .game-board {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        svg {
+            border: 3px solid #ddd;
+            border-radius: 15px;
+            background: white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .node {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .node:hover {
+            transform: scale(1.1);
+        }
+
+        .terminal {
+            fill: #ff6b6b;
+            stroke: #ff5252;
+            stroke-width: 3;
+        }
+
+        .regular-node {
+            fill: #4ecdc4;
+            stroke: #26a69a;
+            stroke-width: 2;
+        }
+
+        .edge {
+            stroke: #666;
+            stroke-width: 3;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .edge:hover {
+            stroke-width: 5;
+            stroke: #333;
+        }
+
+        .edge.cut {
+            stroke: #ff4757;
+            stroke-width: 4;
+            stroke-dasharray: 5,5;
+        }
+
+        .edge.connected {
+            stroke: #2ed573;
+            stroke-width: 5;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+
+        .rules {
+            background: linear-gradient(45deg, #ffecd2 0%, #fcb69f 100%);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .rules.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .rules h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .rules ul {
+            color: #555;
+            margin-left: 20px;
+        }
+
+        .rules li {
+            margin: 8px 0;
+        }
+
+        .winner {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(45deg, #ff9a9e 0%, #fecfef 100%);
+            border-radius: 15px;
+            margin-top: 20px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #333;
+            animation: celebrateWin 0.5s ease;
+        }
+
+        @keyframes celebrateWin {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Shannon Switching Game</h1>
+        <p class="subtitle">Connect the red terminals or block the connection!</p>
+        
+        <div class="game-info">
+            <div class="current-player" id="currentPlayer">Current Player: Short (Connector)</div>
+            <div class="game-status" id="gameStatus">Game in progress</div>
+        </div>
+
+        <div class="controls">
+            <button class="reset-btn" onclick="resetGame()">New Game</button>
+            <button class="rules-btn" onclick="toggleRules()">Rules</button>
+        </div>
+
+        <div class="game-board">
+            <svg width="600" height="400" id="gameBoard">
+                <!-- Game board will be generated by JavaScript -->
+            </svg>
+        </div>
+
+        <div class="rules" id="rules">
+            <h3>How to Play:</h3>
+            <ul>
+                <li><strong>Short (Connector):</strong> Try to create a path between the two red terminal nodes by clicking on edges to "connect" them (turn green).</li>
+                <li><strong>Cut (Blocker):</strong> Try to prevent the Short player from connecting the terminals by clicking on edges to "cut" them (turn red and dashed).</li>
+                <li><strong>Players alternate turns.</strong> Short goes first.</li>
+                <li><strong>Short wins</strong> if they create an unbroken path of connected edges between the terminals.</li>
+                <li><strong>Cut wins</strong> if they make it impossible for Short to connect the terminals.</li>
+                <li>Once an edge is clicked, it cannot be changed!</li>
+            </ul>
+        </div>
+
+        <div class="winner" id="winner" style="display: none;"></div>
+    </div>
+
+    <script>
+        class ShannonSwitchingGame {
+            constructor() {
+                this.currentPlayer = 'short'; // 'short' (connector) or 'cut' (blocker)
+                this.gameOver = false;
+                this.edges = [];
+                this.nodes = [];
+                this.terminals = [0, 5]; // Terminal node indices
+                this.initializeGame();
+            }
+
+            initializeGame() {
+                this.createGraph();
+                this.renderGame();
+                this.updateUI();
+            }
+
+            createGraph() {
+                // Create a simple graph with 6 nodes
+                this.nodes = [
+                    {x: 100, y: 200, terminal: true},   // Terminal 1
+                    {x: 200, y: 100, terminal: false},
+                    {x: 200, y: 300, terminal: false},
+                    {x: 400, y: 100, terminal: false},
+                    {x: 400, y: 300, terminal: false},
+                    {x: 500, y: 200, terminal: true}    // Terminal 2
+                ];
+
+                // Define edges (connections between nodes)
+                this.edges = [
+                    {from: 0, to: 1, state: 'neutral'},
+                    {from: 0, to: 2, state: 'neutral'},
+                    {from: 1, to: 3, state: 'neutral'},
+                    {from: 1, to: 4, state: 'neutral'},
+                    {from: 2, to: 3, state: 'neutral'},
+                    {from: 2, to: 4, state: 'neutral'},
+                    {from: 3, to: 5, state: 'neutral'},
+                    {from: 4, to: 5, state: 'neutral'},
+                    {from: 1, to: 2, state: 'neutral'}, // Additional connections
+                    {from: 3, to: 4, state: 'neutral'}
+                ];
+            }
+
+            renderGame() {
+                const svg = document.getElementById('gameBoard');
+                svg.innerHTML = '';
+
+                // Draw edges first (so they appear behind nodes)
+                this.edges.forEach((edge, index) => {
+                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    const fromNode = this.nodes[edge.from];
+                    const toNode = this.nodes[edge.to];
+                    
+                    line.setAttribute('x1', fromNode.x);
+                    line.setAttribute('y1', fromNode.y);
+                    line.setAttribute('x2', toNode.x);
+                    line.setAttribute('y2', toNode.y);
+                    line.setAttribute('class', `edge ${edge.state}`);
+                    line.addEventListener('click', () => this.handleEdgeClick(index));
+                    
+                    svg.appendChild(line);
+                });
+
+                // Draw nodes
+                this.nodes.forEach((node, index) => {
+                    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    circle.setAttribute('cx', node.x);
+                    circle.setAttribute('cy', node.y);
+                    circle.setAttribute('r', 15);
+                    circle.setAttribute('class', node.terminal ? 'node terminal' : 'node regular-node');
+                    
+                    svg.appendChild(circle);
+
+                    // Add node labels
+                    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    text.setAttribute('x', node.x);
+                    text.setAttribute('y', node.y + 5);
+                    text.setAttribute('text-anchor', 'middle');
+                    text.setAttribute('font-family', 'Arial');
+                    text.setAttribute('font-size', '12');
+                    text.setAttribute('font-weight', 'bold');
+                    text.setAttribute('fill', 'white');
+                    text.textContent = node.terminal ? 'T' : index;
+                    
+                    svg.appendChild(text);
+                });
+            }
+
+            handleEdgeClick(edgeIndex) {
+                if (this.gameOver || this.edges[edgeIndex].state !== 'neutral') {
+                    return;
+                }
+
+                // Update edge state based on current player
+                this.edges[edgeIndex].state = this.currentPlayer === 'short' ? 'connected' : 'cut';
+                
+                // Check for win conditions
+                this.checkGameEnd();
+                
+                // Switch players if game is not over
+                if (!this.gameOver) {
+                    this.currentPlayer = this.currentPlayer === 'short' ? 'cut' : 'short';
+                }
+                
+                this.renderGame();
+                this.updateUI();
+            }
+
+            checkGameEnd() {
+                // Check if Short (connector) has won by finding a path between terminals
+                if (this.hasPathBetweenTerminals()) {
+                    this.gameOver = true;
+                    this.winner = 'Short (Connector)';
+                    return;
+                }
+
+                // Check if Cut (blocker) has won by making connection impossible
+                if (this.isConnectionImpossible()) {
+                    this.gameOver = true;
+                    this.winner = 'Cut (Blocker)';
+                    return;
+                }
+            }
+
+            hasPathBetweenTerminals() {
+                // Use DFS to check if there's a path of connected edges between terminals
+                const visited = new Set();
+                const stack = [this.terminals[0]];
+                
+                while (stack.length > 0) {
+                    const currentNode = stack.pop();
+                    
+                    if (currentNode === this.terminals[1]) {
+                        return true;
+                    }
+                    
+                    if (visited.has(currentNode)) {
+                        continue;
+                    }
+                    
+                    visited.add(currentNode);
+                    
+                    // Find connected neighbors
+                    this.edges.forEach(edge => {
+                        if (edge.state === 'connected') {
+                            if (edge.from === currentNode && !visited.has(edge.to)) {
+                                stack.push(edge.to);
+                            } else if (edge.to === currentNode && !visited.has(edge.from)) {
+                                stack.push(edge.from);
+                            }
+                        }
+                    });
+                }
+                
+                return false;
+            }
+
+            isConnectionImpossible() {
+                // Check if it's impossible to create a path using only neutral and connected edges
+                const visited = new Set();
+                const stack = [this.terminals[0]];
+                
+                while (stack.length > 0) {
+                    const currentNode = stack.pop();
+                    
+                    if (currentNode === this.terminals[1]) {
+                        return false; // Connection is still possible
+                    }
+                    
+                    if (visited.has(currentNode)) {
+                        continue;
+                    }
+                    
+                    visited.add(currentNode);
+                    
+                    // Find available neighbors (not cut)
+                    this.edges.forEach(edge => {
+                        if (edge.state !== 'cut') {
+                            if (edge.from === currentNode && !visited.has(edge.to)) {
+                                stack.push(edge.to);
+                            } else if (edge.to === currentNode && !visited.has(edge.from)) {
+                                stack.push(edge.from);
+                            }
+                        }
+                    });
+                }
+                
+                return true; // No path possible
+            }
+
+            updateUI() {
+                const currentPlayerElement = document.getElementById('currentPlayer');
+                const gameStatusElement = document.getElementById('gameStatus');
+                const winnerElement = document.getElementById('winner');
+
+                if (this.gameOver) {
+                    currentPlayerElement.textContent = 'Game Over';
+                    gameStatusElement.textContent = `${this.winner} wins!`;
+                    winnerElement.textContent = `🎉 ${this.winner} Wins! 🎉`;
+                    winnerElement.style.display = 'block';
+                } else {
+                    const playerName = this.currentPlayer === 'short' ? 'Short (Connector)' : 'Cut (Blocker)';
+                    currentPlayerElement.textContent = `Current Player: ${playerName}`;
+                    gameStatusElement.textContent = 'Game in progress';
+                    winnerElement.style.display = 'none';
+                }
+            }
+
+            reset() {
+                this.currentPlayer = 'short';
+                this.gameOver = false;
+                this.winner = null;
+                this.edges.forEach(edge => edge.state = 'neutral');
+                this.renderGame();
+                this.updateUI();
+            }
+        }
+
+        // Global game instance
+        let game = new ShannonSwitchingGame();
+
+        function resetGame() {
+            game.reset();
+        }
+
+        function toggleRules() {
+            const rules = document.getElementById('rules');
+            rules.classList.toggle('show');
+        }
+    </script>
+</body>
+</html>
